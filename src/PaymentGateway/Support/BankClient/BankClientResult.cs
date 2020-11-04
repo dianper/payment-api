@@ -1,17 +1,17 @@
-﻿namespace Application.Models
+﻿namespace Support.BankClient
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
-    public class PaymentPostResult
+    [ExcludeFromCodeCoverage]
+    public class BankClientResult
     {
-        public PaymentPostResult(Guid paymentId, Guid transactionId, string transactionStatus)
+        public BankClientResult(Guid transactionId, string transactionStatus)
         {
-            this.PaymentId = paymentId;
             this.TransactionId = transactionId;
             this.TransactionStatus = transactionStatus;
         }
 
-        public Guid PaymentId { get; }
         public Guid TransactionId { get; }
         public string TransactionStatus { get; }
     }

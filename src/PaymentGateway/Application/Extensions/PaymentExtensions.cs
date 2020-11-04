@@ -12,7 +12,7 @@
                 return default;
             }
 
-            return new PaymentPostResult(payment.Id, payment.TransactionStatus);
+            return new PaymentPostResult(payment.Id, payment.TransactionId, payment.TransactionStatus);
         }
 
         public static PaymentGetResult ToGetResult(this Payment payment)
@@ -28,6 +28,7 @@
                 CardNumberMasked = payment.CardNumber.ToMask(),
                 MerchantId = payment.MerchantId,
                 PaymentId = payment.Id,
+                TransactionId = payment.TransactionId,
                 TransactionDate = payment.Created,
                 TransactionStatus = payment.TransactionStatus
             };

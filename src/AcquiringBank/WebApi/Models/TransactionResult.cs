@@ -6,10 +6,10 @@
     {
         public TransactionResult()
         {
-            this.TransactionId = new Guid();
+            this.TransactionId = Guid.NewGuid();
         }
 
-        public Guid TransactionId { get; }
+        public Guid TransactionId { get; set; }
         public string TransactionStatus { get; set; }
     }
 }

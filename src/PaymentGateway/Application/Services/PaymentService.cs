@@ -9,26 +9,29 @@
     using Microsoft.Extensions.Logging;
     using Repository.Enums;
     using Repository.Interfaces;
+    using Support.BankClient;
 
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository paymentRepository;
         private readonly IMerchantRepository merchantRepository;
+        private readonly IAcquiringBankClient acquiringBankClient;
         private readonly ILogger<PaymentService> logger;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
             IMerchantRepository merchantRepository,
+            IAcquiringBankClient acquiringBankClient,
             ILogger<PaymentService> logger)
         {
             this.paymentRepository = paymentRepository;
             this.merchantRepository = merchantRepository;
+            this.acquiringBankClient = acquiringBankClient;
             this.logger = logger;
         }
 
         public async Task<BaseResult<PaymentPostResult>> ProcessPaymentAsync(PaymentPostRequest paymentPostRequest)
         {
-            // TODO: Validator
             var errors = new Dictionary<string, string>();
 
             if (!(await this.merchantRepository.Exists(paymentPostRequest.MerchantId)))
@@ -48,9 +51,9 @@
 
             try
             {
-                // TODO: Mock Acquiring Bank
-                var transactionStatus = "Success";
-                var payment = await this.paymentRepository.InsertAsync(paymentPostRequest.ToPaymentModel(enumResult, transactionStatus));
+                var bankClientResult = await this.acquiringBankClient.ProcessTransaction(paymentPostRequest.ToBankClientRequest());
+
+                var payment = await this.paymentRepository.InsertAsync(paymentPostRequest.ToPaymentModel(enumResult, bankClientResult));
 
                 return new BaseResult<PaymentPostResult>(payment.ToPostResult());
             }
@@ -72,6 +75,7 @@
         public async Task<BaseResult<PaymentGetResult>> RetrievePaymentDetailsAsync(PaymentGetRequest paymentGetRequest)
         {
             var errors = new Dictionary<string, string>();
+            
             var payment = await this.paymentRepository.GetByIdAsync(paymentGetRequest.PaymentId);
             if (payment == null)
             {
