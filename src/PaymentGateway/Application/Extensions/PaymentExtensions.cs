@@ -2,6 +2,8 @@
 {
     using Application.Models;
     using Repository.Models;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public static class PaymentExtensions
     {
@@ -15,23 +17,32 @@
             return new PaymentPostResult(payment.Id, payment.TransactionId, payment.TransactionStatus);
         }
 
-        public static PaymentGetResult ToGetResult(this Payment payment)
+        public static IEnumerable<PaymentGetResult> ToDetailsResult(this IEnumerable<Payment> payments)
         {
-            if (payment == null)
+            if (!payments.Any())
             {
                 return default;
             }
 
-            return new PaymentGetResult
+            var result = new List<PaymentGetResult>();
+
+            foreach (var payment in payments)
+            {
+                result.Add(payment.ToGetResult());
+            }
+
+            return result;
+        }
+
+        private static PaymentGetResult ToGetResult(this Payment payment) =>
+            new PaymentGetResult
             {
                 Amount = payment.Amount,
                 CardNumberMasked = payment.CardNumber.ToMask(),
-                MerchantId = payment.MerchantId,
                 PaymentId = payment.Id,
+                PaymentDate = payment.Created,
                 TransactionId = payment.TransactionId,
-                TransactionDate = payment.Created,
                 TransactionStatus = payment.TransactionStatus
             };
-        }
     }
 }

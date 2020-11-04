@@ -2,12 +2,14 @@
 {
     using Application.Models;
     using FluentValidation;
+    using System.Diagnostics.CodeAnalysis;
 
+    [ExcludeFromCodeCoverage]
     public class PaymentGetValidator : AbstractValidator<PaymentGetRequest>
     {
         public PaymentGetValidator()
         {
-            RuleFor(x => x.PaymentId).NotNull().NotEmpty();
+            RuleFor(x => x.MerchantId).NotNull().NotEmpty();
         }
     }
 }

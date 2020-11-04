@@ -1,9 +1,11 @@
 ﻿namespace Repository
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.EntityFrameworkCore;
     using Repository.Models;
 
+    [ExcludeFromCodeCoverage]
     public static class Seed
     {
         private static DbContextOptionsBuilder<PaymentContext> optionsBuilder;

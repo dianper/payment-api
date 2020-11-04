@@ -31,7 +31,7 @@
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] PaymentGetRequest paymentGetRequest)
         {
-            var result = await this.paymentService.RetrievePaymentDetailsAsync(paymentGetRequest);
+            var result = await this.paymentService.RetrievePaymentsDetailsAsync(paymentGetRequest);
             if (result.Success)
             {
                 return this.Ok(result);

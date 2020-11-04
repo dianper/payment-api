@@ -32,30 +32,37 @@
 
         public async Task<BaseResult<PaymentPostResult>> ProcessPaymentAsync(PaymentPostRequest paymentPostRequest)
         {
-            var errors = new Dictionary<string, string>();
+            var result = new BaseResult<PaymentPostResult>();
 
             if (!(await this.merchantRepository.Exists(paymentPostRequest.MerchantId)))
             {
-                errors.Add("merchantNotFound", $"MerchantId '{paymentPostRequest.MerchantId}' not found.");
+                result.Errors.Add("merchantNotFound", $"MerchantId '{paymentPostRequest.MerchantId}' not found.");
             }
 
-            if (!Enum.TryParse<Currency>(paymentPostRequest.Currency, true, out var enumResult))
+            if (!Enum.TryParse<Currency>(paymentPostRequest.Currency, true, out var currency))
             {
-                errors.Add("currencyNotFound", $"Currency '{paymentPostRequest.Currency}' is not valid.");
+                result.Errors.Add("currencyNotFound", $"Currency '{paymentPostRequest.Currency}' is not valid.");
             }
 
-            if (errors.Any())
+            if (result.Errors.Any())
             {
-                return new BaseResult<PaymentPostResult>(errors: errors);
+                return result;
             }
 
             try
             {
-                var bankClientResult = await this.acquiringBankClient.ProcessTransaction(paymentPostRequest.ToBankClientRequest());
+                var bankClientResult = await this.acquiringBankClient.ProcessTransactionAsync(paymentPostRequest.ToBankClientRequest());
+                if (bankClientResult == null)
+                {
+                    result.Errors.Add("bankClient", "Error while processing bank transaction.");
+                    return result;
+                }
 
-                var payment = await this.paymentRepository.InsertAsync(paymentPostRequest.ToPaymentModel(enumResult, bankClientResult));
+                var paymentModel = paymentPostRequest.ToPaymentModel(currency, bankClientResult);
 
-                return new BaseResult<PaymentPostResult>(payment.ToPostResult());
+                var paymentModelResult = await this.paymentRepository.InsertAsync(paymentModel);
+
+                result.Result = paymentModelResult.ToPostResult();
             }
             catch (Exception ex)
             {
@@ -66,30 +73,33 @@
                     ex.Message
                 });
 
-                errors.Add("paymentProcess", ex.Message);
-
-                return new BaseResult<PaymentPostResult>(errors: errors);
+                result.Errors.Add("paymentProcess", ex.Message);
             }
+
+            return result;
         }
 
-        public async Task<BaseResult<PaymentGetResult>> RetrievePaymentDetailsAsync(PaymentGetRequest paymentGetRequest)
+        public async Task<BaseResult<IEnumerable<PaymentGetResult>>> RetrievePaymentsDetailsAsync(PaymentGetRequest paymentGetRequest)
         {
-            var errors = new Dictionary<string, string>();
-            
-            var payment = await this.paymentRepository.GetByIdAsync(paymentGetRequest.PaymentId);
-            if (payment == null)
-            {
-                this.logger.LogInformation("PaymentId not found.", new
-                {
-                    Class = nameof(PaymentService),
-                    Method = nameof(RetrievePaymentDetailsAsync),
-                    PaymentId = paymentGetRequest.PaymentId
-                });
+            var result = new BaseResult<IEnumerable<PaymentGetResult>>();
 
-                errors.Add("paymentNotFound", $"PaymentId '{paymentGetRequest.PaymentId}' not found.");
+            var payments = await this.paymentRepository.GetPaymentsDetailsAsync(paymentGetRequest.MerchantId, paymentGetRequest.PaymentId);
+            if (payments.Any())
+            {
+                result.Result = payments.ToDetailsResult();
+                return result;
             }
 
-            return new BaseResult<PaymentGetResult>(payment.ToGetResult(), errors);
+            this.logger.LogInformation("Payments details not found.", new
+            {
+                Class = nameof(PaymentService),
+                Method = nameof(RetrievePaymentsDetailsAsync),
+                paymentGetRequest.MerchantId,
+                paymentGetRequest.PaymentId
+            });
+
+            result.Errors.Add("paymentsDetails", "Payments details not found.");
+            return result;
         }
     }
 }

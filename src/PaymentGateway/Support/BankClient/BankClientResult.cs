@@ -6,13 +6,7 @@
     [ExcludeFromCodeCoverage]
     public class BankClientResult
     {
-        public BankClientResult(Guid transactionId, string transactionStatus)
-        {
-            this.TransactionId = transactionId;
-            this.TransactionStatus = transactionStatus;
-        }
-
-        public Guid TransactionId { get; }
-        public string TransactionStatus { get; }
+        public Guid TransactionId { get; set; }
+        public string TransactionStatus { get; set; }
     }
 }

@@ -4,6 +4,6 @@
 
     public interface IAcquiringBankClient
     {
-        Task<BankClientResult> ProcessTransaction(BankClientRequest bankClientRequest);
+        Task<BankClientResult> ProcessTransactionAsync(BankClientRequest bankClientRequest);
     }
 }

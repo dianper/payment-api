@@ -1,10 +1,12 @@
 ﻿namespace Application.Models
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
+    [ExcludeFromCodeCoverage]
     public class PaymentPostResult
     {
-        public PaymentPostResult(Guid paymentId, Guid transactionId, string transactionStatus)
+        public PaymentPostResult(Guid paymentId, Guid? transactionId, string transactionStatus)
         {
             this.PaymentId = paymentId;
             this.TransactionId = transactionId;
@@ -12,7 +14,7 @@
         }
 
         public Guid PaymentId { get; }
-        public Guid TransactionId { get; }
+        public Guid? TransactionId { get; }
         public string TransactionStatus { get; }
     }
 }

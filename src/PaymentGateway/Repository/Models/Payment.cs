@@ -15,7 +15,7 @@
         public decimal Amount { get; set; }
         public Currency Currency { get; set; }
         public DateTime Created { get; set; }
-        public Guid TransactionId { get; set; }
+        public Guid? TransactionId { get; set; }
         public string TransactionStatus { get; set; }
     }
 }

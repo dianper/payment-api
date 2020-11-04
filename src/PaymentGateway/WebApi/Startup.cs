@@ -1,5 +1,6 @@
 namespace WebApi
 {
+    using System;
     using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -8,25 +9,33 @@ namespace WebApi
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
     using Repository;
+    using WebApi.Configuration;
     using WebApi.Dependencies;
     using WebApi.Validators;
 
     public class Startup
     {
+        private readonly AppConfiguration appConfiguration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.appConfiguration = configuration.Get<AppConfiguration>();
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.RegisterConfigurationDependencies(this.appConfiguration);
+            services.AddHttpClient(this.appConfiguration.BankConfiguration.ServiceName, c =>
+            {
+                c.BaseAddress = new Uri(this.appConfiguration.BankConfiguration.BaseAddress);
+                c.Timeout = TimeSpan.FromMilliseconds(this.appConfiguration.BankConfiguration.Timeout);
+            });
+
             services.RegisterRepositoryDependencies();
             services.RegisterServicesDependencies();
 
-            services.AddControllers().AddFluentValidation(fv => 
+            services.AddControllers().AddFluentValidation(fv =>
             {
                 fv.RegisterValidatorsFromAssemblyContaining<PaymentGetValidator>();
                 fv.RegisterValidatorsFromAssemblyContaining<PaymentPostValidator>();
@@ -34,11 +43,11 @@ namespace WebApi
 
             services.AddSwaggerGen(sg =>
             {
-                sg.SwaggerDoc("v1", new OpenApiInfo
+                sg.SwaggerDoc(this.appConfiguration.SwaggerConfiguration.Version, new OpenApiInfo
                 {
-                    Version = "v1",
-                    Title = "Checkout Payment Gateway",
-                    Description = "Responsible for processing payments",
+                    Version = this.appConfiguration.SwaggerConfiguration.Version,
+                    Title = this.appConfiguration.SwaggerConfiguration.Title,
+                    Description = this.appConfiguration.SwaggerConfiguration.Description,
                 });
             });
         }

@@ -1,6 +1,9 @@
 ﻿namespace Repository
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Repository.Interfaces;
@@ -15,6 +18,11 @@
         {
             this.context = context;
             this.dbSet = context.Set<T>();
+        }
+
+        public async Task<IEnumerable<T>> GetAllByExpressionAsync(Expression<Func<T, bool>> expression)
+        {
+            return await this.dbSet.AsNoTracking().Where(expression).ToListAsync();
         }
 
         public Task<T> GetByIdAsync(Guid id)

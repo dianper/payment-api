@@ -1,9 +1,11 @@
 ﻿namespace WebApi.Validators
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Application.Models;
     using FluentValidation;
 
+    [ExcludeFromCodeCoverage]
     public class PaymentPostValidator : AbstractValidator<PaymentPostRequest>
     {
         public PaymentPostValidator()
