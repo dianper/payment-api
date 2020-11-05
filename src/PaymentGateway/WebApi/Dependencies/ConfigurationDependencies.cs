@@ -11,6 +11,7 @@
         {
             services.AddSingleton(appConfiguration.BankConfiguration);
             services.AddSingleton(appConfiguration.SwaggerConfiguration);
+            services.AddSingleton(appConfiguration.AuthConfiguration);
         }
     }
 }

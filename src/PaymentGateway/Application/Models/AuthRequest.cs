@@ -1,14 +1,14 @@
 ﻿namespace Application.Models
 {
-    using System;
     using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
-    public class PaymentGetRequest
+    public class AuthRequest
     {
         [Required]
-        public Guid MerchantId { get; set; }
-        public Guid? PaymentId { get; set; }
+        public string Username { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

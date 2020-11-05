@@ -3,8 +3,10 @@
     using System.Threading.Tasks;
     using Application.Models;
     using Application.Services;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    [Authorize]
     [ApiController]
     [Route("api/v1/[controller]")]
     public class PaymentController : ControllerBase

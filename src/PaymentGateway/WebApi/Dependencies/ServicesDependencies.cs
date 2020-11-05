@@ -10,6 +10,7 @@
     {
         public static void RegisterServicesDependencies(this IServiceCollection services)
         {
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAcquiringBankClient, AcquiringBankClient>();
             services.AddScoped<IPaymentService, PaymentService>();
         }

@@ -8,5 +8,6 @@
     {
         public BankConfiguration BankConfiguration { get; set; }
         public SwaggerConfiguration SwaggerConfiguration { get; set; }
+        public AuthConfiguration AuthConfiguration { get; set; }
     }
 }

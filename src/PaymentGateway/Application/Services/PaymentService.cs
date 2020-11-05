@@ -49,15 +49,15 @@
                 return result;
             }
 
+            var bankClientResult = await this.acquiringBankClient.ProcessTransactionAsync(paymentPostRequest.ToBankClientRequest());
+            if (bankClientResult == null)
+            {
+                result.Errors.Add("bankClient", "Error while processing bank transaction.");
+                return result;
+            }
+
             try
             {
-                var bankClientResult = await this.acquiringBankClient.ProcessTransactionAsync(paymentPostRequest.ToBankClientRequest());
-                if (bankClientResult == null)
-                {
-                    result.Errors.Add("bankClient", "Error while processing bank transaction.");
-                    return result;
-                }
-
                 var paymentModel = paymentPostRequest.ToPaymentModel(currency, bankClientResult);
 
                 var paymentModelResult = await this.paymentRepository.InsertAsync(paymentModel);

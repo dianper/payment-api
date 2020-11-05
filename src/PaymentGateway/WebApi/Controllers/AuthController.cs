@@ -1,15 +1,32 @@
 ﻿namespace WebApi.Controllers
 {
+    using Application.Models;
+    using Application.Services;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
-    [Route("/api/v1/auth")]
+    [Route("/api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
+        private readonly IAuthService authService;
+
+        public AuthController(IAuthService authService)
         {
-            return Ok("token");
+            this.authService = authService;
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public ActionResult<AuthResult> GenerateToken(AuthRequest authRequest)
+        {
+            var result = this.authService.AuthenticateUser(authRequest);
+            if (result.Success)
+            {
+                return this.Ok(result);
+            }
+
+            return this.Unauthorized(result);
         }
     }
 }
