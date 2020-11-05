@@ -19,7 +19,7 @@
 
         public static IEnumerable<PaymentGetResult> ToDetailsResult(this IEnumerable<Payment> payments)
         {
-            if (!payments.Any())
+            if (payments == null || !payments.Any())
             {
                 return default;
             }
@@ -38,7 +38,7 @@
             new PaymentGetResult
             {
                 Amount = payment.Amount,
-                CardNumberMasked = payment.CardNumber.ToMask(),
+                CardNumberMasked = payment.CardNumber.ToCardMasked(),
                 PaymentId = payment.Id,
                 PaymentDate = payment.Created,
                 TransactionId = payment.TransactionId,

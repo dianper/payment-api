@@ -2,9 +2,11 @@
 {
     public static class StringExtensions
     {
-        public static string ToMask(this string source)
+        public static string ToCardMasked(this string cardNumber, char paddingChar = '*', int maskLength = 16)
         {
-            return string.Concat("#### #### #### ", source.Substring(12));
+            if (string.IsNullOrEmpty(cardNumber) || cardNumber.Length < maskLength) return default;
+
+            return cardNumber.Substring(maskLength - 4).PadLeft(maskLength, paddingChar);
         }
     }
 }

@@ -8,7 +8,7 @@
 
     public static class PaymentPostRequestExtensions
     {
-        public static Payment ToPaymentModel(this PaymentPostRequest paymentPostRequest, Currency currency, BankClientResult bankClientResult) =>
+        public static Payment ToPaymentModel(this PaymentPostRequest paymentPostRequest, Currency currency = Currency.USD, BankClientResult bankClientResult = default) =>
             new Payment
             {
                 Amount = paymentPostRequest.Amount,
@@ -19,8 +19,8 @@
                 ExpiryYear = paymentPostRequest.ExpiryYear,
                 MerchantId = paymentPostRequest.MerchantId,
                 SecurityCode = paymentPostRequest.SecurityCode,
-                TransactionId = bankClientResult.TransactionId,
-                TransactionStatus = bankClientResult.TransactionStatus
+                TransactionId = bankClientResult?.TransactionId,
+                TransactionStatus = bankClientResult?.TransactionStatus
             };
 
         public static BankClientRequest ToBankClientRequest(this PaymentPostRequest paymentPostRequest) =>
