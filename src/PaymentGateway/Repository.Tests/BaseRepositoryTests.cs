@@ -10,12 +10,19 @@ namespace Repository.Tests
     [ExcludeFromCodeCoverage]
     public class BaseRepositoryTests
     {
-        private PaymentContext paymentContext;
-        private BaseRepository<Merchant> target;
+        private readonly BaseRepository<Merchant> target;
 
         public BaseRepositoryTests()
         {
-            this.SetupPaymentContext();
+            var optionsBuilder = new DbContextOptionsBuilder<PaymentContext>();
+            optionsBuilder.UseInMemoryDatabase("fakedb");
+
+            var context = new PaymentContext(optionsBuilder.Options);
+            context.Database.EnsureDeleted();
+            context.AddRange(this.GetFakeMerchants());
+            context.SaveChanges();
+
+            this.target = new BaseRepository<Merchant>(context);
         }
 
         [Fact]
@@ -47,25 +54,26 @@ namespace Repository.Tests
         public async Task InsertAsync()
         {
             // Act
-            var result = await this.target.InsertAsync(new Merchant { Name = "m2" });
+            var result = await this.target.InsertAsync(new Merchant { Id = Guid.NewGuid(), Name = "m2" });
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal("m2", result.Name);
         }
 
-        private void SetupPaymentContext()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<PaymentContext>();
-            optionsBuilder.UseInMemoryDatabase("testdb");
-
-            this.paymentContext = new PaymentContext(optionsBuilder.Options);
-            this.paymentContext.Database.EnsureDeleted();
-            this.paymentContext.Database.EnsureCreated();
-            this.paymentContext.AddRange(new Merchant { Id = new Guid("caab5cc6-01bd-42d4-bb1e-ec17433161b3"), Name = "name" }, new Merchant { Name = "merchant" });
-            this.paymentContext.SaveChanges();
-
-            this.target = new BaseRepository<Merchant>(this.paymentContext);
-        }
+        private Merchant[] GetFakeMerchants() =>
+            new[]
+            {
+                new Merchant
+                {
+                    Id = new Guid("caab5cc6-01bd-42d4-bb1e-ec17433161b3"),
+                    Name = "name"
+                },
+                new Merchant
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "merchant"
+                }
+            };
     }
 }
