@@ -6,15 +6,6 @@
     [ExcludeFromCodeCoverage]
     public class DbContextFactory
     {
-        public PaymentContext GetPaymentContext()
-        {
-            var context = new PaymentContext(this.GetOptions("inmemorydb"));
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
-            return context;
-        }
-
         public FakeDbContext GetFakeContext()
         {
             var context = new FakeDbContext(this.GetOptions("fakedb"));

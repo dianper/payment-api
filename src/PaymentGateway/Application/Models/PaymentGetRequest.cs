@@ -8,7 +8,6 @@
     public class PaymentGetRequest
     {
         [Required]
-        public Guid MerchantId { get; set; }
-        public Guid? PaymentId { get; set; }
+        public Guid PaymentId { get; set; }
     }
 }

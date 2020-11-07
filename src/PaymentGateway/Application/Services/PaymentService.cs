@@ -34,18 +34,10 @@
         {
             var result = new BaseResult<PaymentPostResult>();
 
-            if (!(await this.merchantRepository.Exists(paymentPostRequest.MerchantId)))
+            var (errors, currency) = await this.ValidatePaymentPostRequest(paymentPostRequest);
+            if (errors.Any())
             {
-                result.Errors.Add("merchantNotFound", $"MerchantId '{paymentPostRequest.MerchantId}' not found.");
-            }
-
-            if (!Enum.TryParse<Currency>(paymentPostRequest.Currency, true, out var currency))
-            {
-                result.Errors.Add("currencyNotFound", $"Currency '{paymentPostRequest.Currency}' is not valid.");
-            }
-
-            if (result.Errors.Any())
-            {
+                result.Errors = errors;
                 return result;
             }
 
@@ -79,27 +71,44 @@
             return result;
         }
 
-        public async Task<BaseResult<IEnumerable<PaymentGetResult>>> RetrievePaymentsDetailsAsync(PaymentGetRequest paymentGetRequest)
+        public async Task<BaseResult<PaymentGetResult>> RetrievePaymentDetailsAsync(PaymentGetRequest paymentGetRequest)
         {
-            var result = new BaseResult<IEnumerable<PaymentGetResult>>();
+            var result = new BaseResult<PaymentGetResult>();
 
-            var payments = await this.paymentRepository.GetPaymentsDetailsAsync(paymentGetRequest.MerchantId, paymentGetRequest.PaymentId);
-            if (payments.Any())
+            var payment = await this.paymentRepository.GetByIdAsync(paymentGetRequest.PaymentId);
+            if (payment != null)
             {
-                result.Result = payments.ToDetailsResult();
+                result.Result = payment.ToGetResult();
                 return result;
             }
 
-            this.logger.LogInformation("Payments details not found.", new
+            this.logger.LogInformation("Payment details not found.", new
             {
                 Class = nameof(PaymentService),
-                Method = nameof(RetrievePaymentsDetailsAsync),
-                paymentGetRequest.MerchantId,
+                Method = nameof(RetrievePaymentDetailsAsync),
                 paymentGetRequest.PaymentId
             });
 
-            result.Errors.Add("paymentsDetails", "Payments details not found.");
+            result.Errors.Add("paymentDetails", "Payment details not found.");
             return result;
+        }
+
+        private async Task<(IDictionary<string, string>, Currency)> ValidatePaymentPostRequest(PaymentPostRequest paymentPostRequest)
+        {
+            var errors = new Dictionary<string, string>();
+
+            var merchant = await this.merchantRepository.GetByIdAsync(paymentPostRequest.MerchantId);
+            if (merchant == null)
+            {
+                errors.Add("merchantNotFound", $"MerchantId '{paymentPostRequest.MerchantId}' not found.");
+            }
+
+            if (!Enum.TryParse<Currency>(paymentPostRequest.Currency, true, out var currency))
+            {
+                errors.Add("currencyNotValid", $"Currency '{paymentPostRequest.Currency}' is not valid.");
+            }
+
+            return (errors, currency);
         }
     }
 }

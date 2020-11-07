@@ -4,6 +4,7 @@
     {
         USD,
         EUR,
+        GPB,
         BRL
     }
 }

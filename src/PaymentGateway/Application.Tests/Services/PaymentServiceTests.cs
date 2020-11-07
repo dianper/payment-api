@@ -1,7 +1,6 @@
 ﻿namespace Application.Tests.Services
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Application.Models;
@@ -47,8 +46,8 @@
             };
 
             this.merchantRepositoryMock
-                .Setup(s => s.Exists(It.IsAny<Guid>()))
-                .ReturnsAsync(false);
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(default(Merchant));
 
             // Act
             var result = await this.target.ProcessPaymentAsync(paymentRequest);
@@ -58,7 +57,7 @@
             Assert.True(result.Errors.ContainsKey("merchantNotFound"));
 
             this.merchantRepositoryMock
-                .Verify(v => v.Exists(It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -68,22 +67,22 @@
             var paymentRequest = new PaymentPostRequest
             {
                 MerchantId = Guid.NewGuid(),
-                Currency = "GPB"
+                Currency = "XXX"
             };
 
             this.merchantRepositoryMock
-                .Setup(s => s.Exists(It.IsAny<Guid>()))
-                .ReturnsAsync(true);
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Merchant());
 
             // Act
             var result = await this.target.ProcessPaymentAsync(paymentRequest);
 
             // Assert
             Assert.False(result.Success);
-            Assert.True(result.Errors.ContainsKey("currencyNotFound"));
+            Assert.True(result.Errors.ContainsKey("currencyNotValid"));
 
             this.merchantRepositoryMock
-                .Verify(v => v.Exists(It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -97,8 +96,8 @@
             };
 
             this.merchantRepositoryMock
-                .Setup(s => s.Exists(It.IsAny<Guid>()))
-                .ReturnsAsync(true);
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Merchant());
 
             this.acquiringBankMock
                 .Setup(s => s.ProcessTransactionAsync(It.IsAny<BankClientRequest>()))
@@ -112,7 +111,7 @@
             Assert.True(result.Errors.ContainsKey("bankClient"));
 
             this.merchantRepositoryMock
-                .Verify(v => v.Exists(It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             this.acquiringBankMock
                 .Verify(v => v.ProcessTransactionAsync(It.IsAny<BankClientRequest>()), Times.Once);
         }
@@ -128,8 +127,8 @@
             };
 
             this.merchantRepositoryMock
-                .Setup(s => s.Exists(It.IsAny<Guid>()))
-                .ReturnsAsync(true);
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Merchant());
 
             this.acquiringBankMock
                 .Setup(s => s.ProcessTransactionAsync(It.IsAny<BankClientRequest>()))
@@ -147,7 +146,7 @@
             Assert.True(result.Errors.ContainsKey("paymentProcess"));
 
             this.merchantRepositoryMock
-                .Verify(v => v.Exists(It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             this.acquiringBankMock
                 .Verify(v => v.ProcessTransactionAsync(It.IsAny<BankClientRequest>()), Times.Once);
             this.paymentRepositoryMock
@@ -177,8 +176,8 @@
             };
 
             this.merchantRepositoryMock
-                .Setup(s => s.Exists(It.IsAny<Guid>()))
-                .ReturnsAsync(true);
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Merchant());
 
             this.acquiringBankMock
                 .Setup(s => s.ProcessTransactionAsync(It.IsAny<BankClientRequest>()))
@@ -197,7 +196,7 @@
             Assert.NotNull(result.Result);
 
             this.merchantRepositoryMock
-                .Verify(v => v.Exists(It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             this.acquiringBankMock
                 .Verify(v => v.ProcessTransactionAsync(It.IsAny<BankClientRequest>()), Times.Once);
             this.paymentRepositoryMock
@@ -205,52 +204,51 @@
         }
 
         [Fact]
-        public async Task RetrievePaymentsDetailsAsync_WhenHasNoDetails_ReturnsError()
+        public async Task RetrievePaymentDetailsAsync_WhenHasNoDetails_ReturnsError()
         {
             // Arrange
             var paymentRequest = new PaymentGetRequest
             {
-                MerchantId = Guid.NewGuid()
+                PaymentId = Guid.NewGuid()
             };
 
             this.paymentRepositoryMock
-                .Setup(s => s.GetPaymentsDetailsAsync(paymentRequest.MerchantId, It.IsAny<Guid>()))
-                .ReturnsAsync(default(IEnumerable<Payment>));
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(default(Payment));
 
             // Act
-            var result = await this.target.RetrievePaymentsDetailsAsync(paymentRequest);
+            var result = await this.target.RetrievePaymentDetailsAsync(paymentRequest);
 
             // Assert
             Assert.False(result.Success);
-            Assert.True(result.Errors.ContainsKey("paymentsDetails"));
+            Assert.True(result.Errors.ContainsKey("paymentDetails"));
 
             this.paymentRepositoryMock
-                .Verify(v => v.GetPaymentsDetailsAsync(paymentRequest.MerchantId, default), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             this.loggerMock
                 .Verify(v => v.Log(
                     It.Is<LogLevel>(l => l == LogLevel.Information),
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Equals("Payments details not found.")),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Equals("Payment details not found.")),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
         }
 
         [Fact]
-        public async Task RetrievePaymentsDetailsAsync_HappyJourney_ReturnsDetails()
+        public async Task RetrievePaymentDetailsAsync_HappyJourney_ReturnsDetails()
         {
             // Arrange
             var paymentRequest = new PaymentGetRequest
             {
-                MerchantId = Guid.NewGuid(),
                 PaymentId = Guid.NewGuid()
             };
 
             this.paymentRepositoryMock
-                .Setup(s => s.GetPaymentsDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync(new List<Payment> { new Payment { Id = Guid.NewGuid() } });
+                .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Payment { Id = Guid.NewGuid() });
 
             // Act
-            var result = await this.target.RetrievePaymentsDetailsAsync(paymentRequest);
+            var result = await this.target.RetrievePaymentDetailsAsync(paymentRequest);
 
             // Assert
             Assert.True(result.Success);
@@ -258,7 +256,7 @@
             Assert.NotNull(result.Result);
 
             this.paymentRepositoryMock
-                .Verify(v => v.GetPaymentsDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+                .Verify(v => v.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
         }
     }
 }

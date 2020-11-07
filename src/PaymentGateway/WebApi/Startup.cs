@@ -1,6 +1,7 @@
 namespace WebApi
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +17,7 @@ namespace WebApi
     using WebApi.Dependencies;
     using WebApi.Validators;
 
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         private readonly AppConfiguration appConfiguration;
