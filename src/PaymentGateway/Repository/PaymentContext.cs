@@ -10,8 +10,8 @@
         public DbSet<Merchant> Merchant { get; set; }
         public DbSet<Payment> Payment { get; set; }
 
-        public PaymentContext(DbContextOptions<PaymentContext> options) : base(options)
-        {
-        }
+        public PaymentContext(DbContextOptions<PaymentContext> options) : base(options) { }
+
+        public PaymentContext() { }
     }
 }

@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
     using Repository.DataAccess;
     using Repository.Models;
     using Xunit;
@@ -11,26 +10,25 @@
     [ExcludeFromCodeCoverage]
     public class MerchantRepositoryTests
     {
+        private readonly PaymentContext paymentContext;
         private readonly MerchantRepository target;
 
         public MerchantRepositoryTests()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<PaymentContext>();
-            optionsBuilder.UseInMemoryDatabase("fakedb");
-
-            var context = new PaymentContext(optionsBuilder.Options);
-            context.Database.EnsureDeleted();
-            context.Add(new Merchant { Id = new Guid("5373afd5-ad64-4bfd-9121-14b3a17883e8"), Name = "name" });
-            context.SaveChanges();
-
-            this.target = new MerchantRepository(context);
+            this.paymentContext = new DbContextFactory().GetPaymentContext();
+            this.target = new MerchantRepository(this.paymentContext);
         }
 
         [Fact]
         public async Task Exists_ReturnsTrue()
         {
+            // Arrange
+            var merchandId = new Guid("5373afd5-ad64-4bfd-9121-14b3a17883e8");
+            this.paymentContext.Add(new Merchant { Id = merchandId });
+            this.paymentContext.SaveChanges();
+
             // Act & Assert
-            Assert.True(await this.target.Exists(new Guid("5373afd5-ad64-4bfd-9121-14b3a17883e8")));
+            Assert.True(await this.target.Exists(merchandId));
         }
 
         [Fact]

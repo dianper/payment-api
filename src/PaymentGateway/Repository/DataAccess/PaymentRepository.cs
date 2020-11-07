@@ -17,7 +17,7 @@
 
             if (paymentId.HasValue)
             {
-                payments = payments.Where(p => p.Id == paymentId);
+                payments = payments.Where(p => p.Id == paymentId.Value);
             }
 
             return payments;
