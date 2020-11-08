@@ -8,7 +8,7 @@
     [ExcludeFromCodeCoverage]
     public static class Seed
     {
-        private static DbContextOptionsBuilder<PaymentContext> optionsBuilder;
+        private static readonly DbContextOptionsBuilder<PaymentContext> optionsBuilder;
 
         static Seed()
         {
