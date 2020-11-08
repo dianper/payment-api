@@ -18,7 +18,7 @@ docker build -t paymentgatewayapi .
 docker run -d -p 44386:80 --name paymentgateway paymentgatewayapi
 ```
 
-## Fake Data
+## Mock Data
 ```
 # Valid MerchantIds
 - 63d33faf-7781-48c9-a2f5-a035d1799735
