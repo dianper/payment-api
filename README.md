@@ -1,3 +1,7 @@
+[![.NET Core](https://github.com/dianper/payment-gateway/workflows/.NET%20Core/badge.svg)](https://github.com/dianper/payment-gateway/actions?query=workflow%3A%22.NET+Core%22)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dianper_payment-gateway&metric=alert_status)](https://sonarcloud.io/dashboard?id=dianper_payment-gateway)
+
 # Checkout Payment Gateway
 Checkout Payment Gateway in .NetCore
 
