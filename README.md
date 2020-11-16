@@ -47,9 +47,13 @@ https://www.freeformatter.com/credit-card-number-generator-validator.html
 - Fake Acquiring Bank using HttpClient
 - Dockerfile to Acquiring Bank and Payment Gateway API
 - UnitTests
+- Metrics using Prometheus
 
 ## Swagger
 - http://localhost:44386/swagger
+
+## Metrics
+- http://localhost:44386/metrics
 
 ## Endpoints
 - POST: Authentication (http://localhost:44386/api/v1/auth)
