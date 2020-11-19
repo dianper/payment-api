@@ -2,8 +2,8 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dianper_payment-gateway&metric=alert_status)](https://sonarcloud.io/dashboard?id=dianper_payment-gateway)
 
-# Checkout Payment Gateway
-Checkout Payment Gateway in .NetCore
+# Payment Gateway
+Payment Gateway in .NetCore
 
 ## Requirements
 - Docker
