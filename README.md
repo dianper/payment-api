@@ -2,8 +2,8 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dianper_payment-gateway&metric=alert_status)](https://sonarcloud.io/dashboard?id=dianper_payment-gateway)
 
-# Payment Gateway
-Payment Gateway in .NetCore
+# Payment API
+Payment API in .NETCore
 
 ## Requirements
 - Docker
@@ -15,7 +15,7 @@ docker build -t acquiringbankapi .
 docker run -d -p 44385:80 --name fakebank acquiringbankapi
 ```
 
-## Run Payment Gateway API
+## Run Payment API
 ```
 # cd /src/PaymentGateway
 docker build -t paymentgatewayapi .
